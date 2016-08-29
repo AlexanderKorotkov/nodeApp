@@ -2,6 +2,9 @@
 # http://git-scm.com/docs/gitignore
 
 node_modules/
+.idea/
+npm-debug.log/
 /api/conf
-/api/conf.js
+#/api/conf.js
+
 

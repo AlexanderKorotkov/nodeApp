@@ -5,10 +5,14 @@ var jwt    = require('jsonwebtoken'); // used to create, sign, and verify tokens
 
 app.set('superSecret', services.conf.secret);
 
-exports.signToken = function(user) {
- return  jwt.sign(user, app.get('superSecret'), {
-    expiresIn: '60m' // expires in 24 hours
-  });
+exports.signToken = function(user, secret) {
+    if(secret !== app.get('superSecret')){
+        return false;
+    }else{
+        return  jwt.sign(user, app.get('superSecret'), {
+            expiresIn: '60m' // expires in 24 hours
+        });
+    }
 };
 
 exports.verifyToken = function(token) {
