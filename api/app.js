@@ -6,6 +6,7 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var conf = require('./conf');
 var session = require('./session/index');
+var chart = require('./chart/index');
 
 var app = express();
 var mongoose    = require('mongoose');
@@ -22,6 +23,7 @@ mongoose.Promise = global.Promise;
 
 var router = express.Router();
 router.use('/session', session.controller);
+router.use('/chart', chart.controller);
 
 app.use('/api', router);
 

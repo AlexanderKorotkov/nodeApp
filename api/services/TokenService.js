@@ -26,3 +26,26 @@ exports.verifyToken = function(token) {
     });
   })
 };
+
+exports.checkToken = function(req, res, next) {
+
+    // check header or url parameters or post parameters for token
+    var token = req.body.token || req.query.token || req.headers['authorization'];
+
+    // decode token
+    if (token) {
+        // verifies secret and checks exp
+        services.token.verifyToken(token).then(function(result){
+            if(result.name === 'TokenExpiredError'){
+                services.errorService.handleError(res, 'invalid Token','Failed to authenticate token.', 400);
+            }else{
+                req.decoded = result;
+                next();
+            }
+        });
+    } else {
+        //if there is no token
+        //return an error
+        return services.errorService.handleError(res, 'No token provided','No token provided.', 403);
+    }
+};

@@ -9,7 +9,6 @@ var services = require('../services/index');
 var middleware = require('./sessionMiddleware');
 var express = require('express');
 var router = express.Router();
-var _ = require('lodash');
 var validator = require('validator');
 
 function signIn(req, res) {
@@ -43,8 +42,8 @@ function signIn(req, res) {
         }else{
           // return the information including token as JSON
           res.send({
-            message: 'Enjoy your token!',
-            token: token
+            token: token,
+            user: {username: user.username, email: user.email, id: user._id }
           });
         }
       }
@@ -75,11 +74,8 @@ function signUp(req, res) {
     } else {
       userData.save(function(err) {
         if (err) throw err;
-        var token = services.token.signToken(userData);
-        // return the information including token as JSON
         res.send({
-          message: 'Enjoy your token!',
-          token: token
+          message: 'Account was created!'
         });
       });
     }
