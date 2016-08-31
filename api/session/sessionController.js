@@ -6,7 +6,6 @@
 
 var User = require('./UserModel');
 var services = require('../services/index');
-var middleware = require('./sessionMiddleware');
 var express = require('express');
 var router = express.Router();
 var validator = require('validator');
