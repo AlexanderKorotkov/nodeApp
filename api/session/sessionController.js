@@ -43,7 +43,7 @@ function signIn(req, res) {
           // return the information including token as JSON
           res.send({
             token: token,
-            user: {username: user.username, email: user.email, id: user._id }
+            user: {username: user.username, email: user.email, _id: user._id }
           });
         }
       }

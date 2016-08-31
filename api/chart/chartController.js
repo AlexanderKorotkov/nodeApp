@@ -32,12 +32,12 @@ router.post('/create', services.token.checkToken, create);
 
 function fetchCharts(req, res) {
     Chart.find({
-        'user.id' : req.params.userId
+        'user._id' : req.params.userId
     }, function(err, charts) {
         if (err) throw err;
         var data = [];
         _.each(charts, function(chart){
-            data.push({message : chart.message, _id: chart.id, user:{username:chart.user.username}});
+            data.push({message : chart.message, _id: chart._id, user:{username:chart.user.username}});
         });
         res.send({
             data: data
@@ -48,7 +48,7 @@ router.get('/:userId/fetchCharts', services.token.checkToken, fetchCharts);
 
 function removeChart(req, res) {
     Chart.remove({
-        $and:[ {'user.id' : req.params.userId}, {_id: req.body._id } ]
+        $and:[ {'user._id' : req.params.userId}, {_id: req.body._id } ]
     }, function(err) {
         if (err) throw err;
         res.send({
