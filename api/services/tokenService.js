@@ -10,7 +10,7 @@ exports.signToken = function(user, secret) {
         return false;
     }else{
         return  jwt.sign(user, app.get('superSecret'), {
-            expiresIn: '60m' // expires in 24 hours
+            expiresIn: '24h' // expires in 24 hours
         });
     }
 };
@@ -37,7 +37,7 @@ exports.checkToken = function(req, res, next) {
         // verifies secret and checks exp
         services.token.verifyToken(token).then(function(result){
             if(result.name === 'TokenExpiredError'){
-                services.errorService.handleError(res, 'invalid Token','Failed to authenticate token.', 400);
+                services.errorService.handleError(res, 'invalid Token','Failed to authenticate token.', 403);
             }else{
                 req.decoded = result;
                 next();

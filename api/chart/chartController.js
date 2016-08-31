@@ -6,15 +6,13 @@
 
 var Chart = require('./chartModel');
 var services = require('../services/index');
-//var middleware = require('./sessionMiddleware');
 var express = require('express');
 var router = express.Router();
 var _ = require('lodash');
 
 function create(req, res) {
     var newChart = new Chart({
-        username : req.body.user.username,
-        userId : req.body.user.id,
+        user : req.body.user,
         message : req.body.message
     });
     newChart.save(function(err, result) {
@@ -34,14 +32,13 @@ router.post('/create', services.token.checkToken, create);
 
 function fetchCharts(req, res) {
     Chart.find({
-        userId : req.params.userId
+        'user.id' : req.params.userId
     }, function(err, charts) {
         if (err) throw err;
         var data = [];
         _.each(charts, function(chart){
-            data.push({message : chart.message, id: chart.id, username:chart.username});
+            data.push({message : chart.message, _id: chart.id, user:{username:chart.user.username}});
         });
-
         res.send({
             data: data
         });
@@ -51,8 +48,8 @@ router.get('/:userId/fetchCharts', services.token.checkToken, fetchCharts);
 
 function removeChart(req, res) {
     Chart.remove({
-        $and:[ {userId : req.params.userId }, {_id: req.body.id } ]
-    }, function(err, chart) {
+        $and:[ {'user.id' : req.params.userId}, {_id: req.body._id } ]
+    }, function(err) {
         if (err) throw err;
         res.send({
             message:'Item was removed'

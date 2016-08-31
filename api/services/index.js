@@ -1,5 +1,5 @@
 'use strict';
 
 exports.conf = require('../conf');
-exports.errorService = require('./ResponseErrorsService');
-exports.token = require('./TokenService.js');
+exports.errorService = require('./responseErrorsService');
+exports.token = require('./tokenService.js');
