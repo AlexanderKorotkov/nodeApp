@@ -6,7 +6,7 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var conf = require('./conf');
 var session = require('./session/index');
-var chart = require('./chart/index');
+var members = require('./members/index');
 
 var app = express();
 var mongoose    = require('mongoose');
@@ -23,7 +23,7 @@ mongoose.Promise = global.Promise;
 
 var router = express.Router();
 router.use('/session', session.controller);
-router.use('/chart', chart.controller);
+router.use('/members', members.controller);
 
 app.use('/api', router);
 
@@ -31,6 +31,7 @@ app.use(express.static(path.join(__dirname, '..')));
 app.use(express.static(path.join(__dirname, '..', '.tmp')));
 app.use('/bower_components',express.static(path.join(__dirname, '..', './bower_components')));
 app.use(express.static(path.join(__dirname, '..', 'www')));
+app.use(express.static(path.join(__dirname, 'uploads')));
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
