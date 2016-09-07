@@ -15,11 +15,12 @@ var fs = require('fs-extra');
 var shortid = require('shortid');
 
 function addMember(req, res) {
+    //console.log(req.headers)
     var shortName = shortid.generate() + path.extname(req.files.file[0].name);
     var uploadsFolder = path.join(services.constants.ABSOLUTE_UPLOADS_FOLDER_URL, req.params.companyId, shortName);
     fs.move(req.files.file[0].path, uploadsFolder , function (err) {
         if (err) throw err;
-        var imageUrl = path.join(services.constants.LOCAL_UPLOADS_FOLDER_URL, req.params.companyId, shortName);
+        var imageUrl = path.join(req.headers.host,services.constants.LOCAL_UPLOADS_FOLDER_URL, req.params.companyId, shortName);
         var member = new Members(_.merge(req.body.member, {companyId:req.params.companyId, imageUrl: imageUrl}));
          member.save( function(err, result) {
              if (err) throw err;
