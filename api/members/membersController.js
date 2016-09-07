@@ -25,7 +25,7 @@ var saveNewMemeber = function (req, res, imageUrl){
 };
 
 
-function updateMember(imageUrl, res){
+function updateMember(req, res, imageUrl){
     Members.findById( req.body.memberId , function(err, member) {
         if (err) throw err;
         services.utils.updateDocument(member, Members, req.body.member);
