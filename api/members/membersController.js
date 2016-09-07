@@ -10,29 +10,67 @@ var express = require('express');
 var router = express.Router();
 var _ = require('lodash');
 var multipart = require('connect-multiparty');
-var path = require('path');
 var fs = require('fs-extra');
-var shortid = require('shortid');
-var urljoin = require('url-join');
+var path = require('path');
 
-function addMember(req, res) {
-    var shortName = shortid.generate() + path.extname(req.files.file[0].name);
-    var uploadsFolder = path.join(services.constants.ABSOLUTE_UPLOADS_FOLDER_URL, req.params.companyId, shortName);
-
-    fs.move(req.files.file[0].path, uploadsFolder , function (err) {
+var saveNewMemeber = function (req, res, imageUrl){
+    var member = new Members(_.merge(req.body.member, {companyId:req.params.companyId, imageUrl: imageUrl}));
+    member.save( function(err, result) {
         if (err) throw err;
-        var imageUrl = urljoin(req.protocol + ':', req.headers.host,services.constants.LOCAL_UPLOADS_FOLDER_URL, req.params.companyId, shortName);
-        var member = new Members(_.merge(req.body.member, {companyId:req.params.companyId, imageUrl: imageUrl}));
-         member.save( function(err, result) {
-             if (err) throw err;
-             res.send({
-                 message: 'Company members was created!',
-                 data: result
-             });
-         })
+        res.send({
+            message: 'Company member was created!',
+            data: result
+        });
+    })
+};
+
+
+function updateMember(imageUrl, res){
+    Members.findById( req.body.memberId , function(err, member) {
+        if (err) throw err;
+        services.utils.updateDocument(member, Members, req.body.member);
+        member.imageUrl = imageUrl;
+        member.save(function(err) {
+            if (err) throw err;
+            res.send({
+                data: member
+            });
+        });
     });
 }
+
+/**
+ *
+ * @description
+ *
+ * @param req
+ * @param res
+ */
+
+function addMember(req, res) {
+    if(req.files.file){
+        services.upload.uploadImg(req).then(function(imageUrl){
+            saveNewMemeber(req, res, imageUrl);
+        });
+    }else{
+        saveNewMemeber(req, res, null);
+    }
+
+
+}
 router.post('/:companyId/create', services.token.checkToken, multipart(), addMember);
+
+
+function editMember(req, res) {
+    if(req.files){
+        services.upload.uploadImg(req).then(function(imageUrl){
+            updateMember(req, res, imageUrl);
+        });
+    }else{
+        updateMember(req, res, null);
+    }
+}
+router.post('/:companyId/update', services.token.checkToken, multipart(), editMember);
 
 function fetchMembers(req, res) {
     Members.find({
@@ -51,12 +89,19 @@ function removeMember(req, res) {
         $and:[ {'companyId' : req.params.companyId}, {_id: req.body.member._id } ]
     }, function(err) {
         if (err) throw err;
-        fs.unlink(path.join(services.constants.PROJECT_ROOT_FOLDER, req.body.member.imageUrl), (err) => {
-            if (err) throw err;
+        if(req.body.member.imageUrl){
+            fs.unlink(path.join(services.constants.PROJECT_ROOT_FOLDER, req.body.member.imageUrl), (err) => {
+                if (err) throw err;
+                res.send({
+                    message:'Member was removed'
+                });
+            });
+        }else{
             res.send({
                 message:'Member was removed'
             });
-        });
+        }
+
     });
 }
 router.post('/:companyId/removeMember', services.token.checkToken, removeMember);
