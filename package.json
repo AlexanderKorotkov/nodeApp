@@ -23,6 +23,7 @@
     "replace": "~0.3.0",
     "serve-favicon": "~2.3.0",
     "shortid": "^2.2.6",
+    "url-join": "^1.1.0",
     "validator": "^5.5.0"
   }
 }
