@@ -15,14 +15,18 @@ require('promise.prototype.finally');
  * Get port from environment and store in Express.
  */
 
-var port = normalizePort(process.env.OPENSHIFT_NODEJS_PORT || process.env.PORT ||  '9000');
-app.set('port', port);
+var server_port = process.env.OPENSHIFT_NODEJS_PORT || 8080;
+var server_ip_address = process.env.OPENSHIFT_NODEJS_IP || '127.0.0.1';
+
+//server.listen(server_port, server_ip_address, function () {
+//  console.log( "Listening on " + server_ip_address + ", server_port " + port )
+//});
 
 /**
  * Create HTTP server.
  */
 
-var server = app.listen(port);
+var server = app.listen(server_port, server_ip_address);
 
 /**
  * Listen on provided port, on all network interfaces.
