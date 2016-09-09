@@ -32,7 +32,9 @@ app.use(express.static(path.join(__dirname, '..', '.tmp')));
 app.use('/bower_components',express.static(path.join(__dirname, '..', './bower_components')));
 app.use(express.static(path.join(__dirname, '..', 'www')));
 app.use(express.static(path.join(__dirname, 'uploads')));
-
+app.get('/', function (req, res) {
+  res.status('200').send('Service is up');
+});
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   var err = new Error('Not Found');
