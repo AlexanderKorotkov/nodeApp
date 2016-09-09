@@ -5,6 +5,7 @@
  */
 
 var _ = require('lodash');
+var http = require('http');
 var app = require('./api/app');
 var logger = require('log4js').getLogger('server');
 
@@ -15,18 +16,24 @@ require('promise.prototype.finally');
  * Get port from environment and store in Express.
  */
 
-var server_port = process.env.OPENSHIFT_NODEJS_PORT || 8080;
+var server_port = process.env.OPENSHIFT_NODEJS_PORT || 9000;
 var server_ip_address = process.env.OPENSHIFT_NODEJS_IP || '127.0.0.1';
-
-//server.listen(server_port, server_ip_address, function () {
-//  console.log( "Listening on " + server_ip_address + ", server_port " + port )
-//});
 
 /**
  * Create HTTP server.
  */
+var server = http.createServer(function(request, response) {
+  console.log((new Date()) + ' Received request for ' + request.url);
+  response.writeHead(200, {'Content-Type': 'text/plain'});
+  response.write("Welcome to Node.js on OpenShift!\n\n");
+  response.end("Thanks for visiting us! \n");
+});
 
-var server = app.listen(server_port, server_ip_address);
+//var server = app.listen(server_port, server_ip_address);
+server.listen(server_port, server_ip_address, function(){
+  console.log("Listening on " + server_ip_address
+      + ", server_port " + server_port);
+});
 
 /**
  * Listen on provided port, on all network interfaces.
