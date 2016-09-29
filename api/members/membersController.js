@@ -58,11 +58,11 @@ function addMember(req, res) {
 
 
 }
-router.post('/:companyId/create', services.token.checkToken, multipart(), addMember);
+router.post('/:companyId/create', services.token.checkToken, services.permissions.isAdmin, multipart(), addMember);
 
 
 function editMember(req, res) {
-    if(req.files){
+    if(_.size(req.files) > 0){
         services.upload.uploadImg(req).then(function(imageUrl){
             updateMember(req, res, imageUrl);
         });
@@ -70,7 +70,7 @@ function editMember(req, res) {
         updateMember(req, res, null);
     }
 }
-router.post('/:companyId/update', services.token.checkToken, multipart(), editMember);
+router.post('/:companyId/update', services.token.checkToken,services.permissions.isAdmin, multipart(), editMember);
 
 function fetchMembers(req, res) {
     Members.find({
@@ -104,7 +104,7 @@ function removeMember(req, res) {
 
     });
 }
-router.post('/:companyId/removeMember', services.token.checkToken, removeMember);
+router.post('/:companyId/removeMember', services.token.checkToken, services.permissions.isAdmin, removeMember);
 
 
 module.exports = router;

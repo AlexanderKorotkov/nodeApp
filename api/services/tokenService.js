@@ -1,7 +1,7 @@
 var express = require('express');
 var app = express();
 var services = require('./index');
-var jwt    = require('jsonwebtoken'); // used to create, sign, and verify tokens
+var jwt    = require('jsonwebtoken');
 
 app.set('superSecret', services.conf.secret);
 

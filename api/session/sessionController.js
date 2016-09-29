@@ -12,19 +12,20 @@ var validator = require('validator');
 
 function signIn(req, res) {
 
-  if(!req.body.username || !req.body.password){
+  if(!req.body.username || !req.body.password || !req.body.companyName){
     services.errorService.handleError(res, "Empty blank", "Please fill all fields", 400);
     return false;
   }
-
+  req.body.username = req.body.username.toLowerCase();
+  req.body.companyName = req.body.companyName.toLowerCase();
   // find the user
   User.findOne({
-    username: req.body.username
+    $and: [ {username: req.body.username }, {companyName: req.body.companyName } ]
   }, function(err, user) {
     if (err) throw err;
 
     if (!user) {
-      services.errorService.handleError(res, "Invalid user", "Authentication failed. User not found or wrong password.", 400);
+      services.errorService.handleError(res, "Invalid user", "Authentication failed. User, Email or Company Name not found", 400);
     } else if (user) {
 
       // check if password matches
@@ -34,14 +35,15 @@ function signIn(req, res) {
 
         // if user is found, password and secret key is right
         // create a token
-        var token = services.token.signToken(user, req.body.client_secret);
+
+        var token = services.token.signToken({_id: user._id}, req.body.client_secret);
         if(!token){
           services.errorService.handleError(res, "Invalid secret key", "Invalid secret key", 400);
         }else{
           // return the information including token as JSON
           res.send({
             token: token,
-            user: {username: user.username, email: user.email, _id: user._id },
+            user: {username: user.username, email: user.email, _id: user._id, admin: user.admin },
             companyId: user.companyId
           });
         }
@@ -62,6 +64,9 @@ function signUp(req, res) {
     services.errorService.handleError(res, "Invalid email", "Email is invalid", 400);
     return false;
   }
+  req.body.username = req.body.username.toLowerCase();
+  req.body.companyName = req.body.companyName.toLowerCase();
+
   var userData = new User(req.body);
 
   var companyData = new Company.model({companyName: req.body.companyName});
@@ -71,7 +76,7 @@ function signUp(req, res) {
   }, function(err, user) {
     if (err) throw err;
     if (user) {
-      services.errorService.handleError(res, "User exist", "Username or Email already exist", 400);
+      services.errorService.handleError(res, "User exist", "Username, Email or Company Name already exist", 400);
     } else {
       companyData.save(function(err, result) {
         if (err) throw err;
