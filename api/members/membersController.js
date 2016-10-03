@@ -22,7 +22,6 @@ var saveNewMemeber = function (req, res, avatar, companyId){
     }, function(err, user) {
         if (err) throw err;
         if(_.size(user) > 0){
-            console.log(avatar)
             if(avatar){
                 services.upload.uploadImg(req).then(function(avatar){
                     updateMember(req, res, avatar);
