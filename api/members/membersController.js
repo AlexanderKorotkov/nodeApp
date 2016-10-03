@@ -64,6 +64,7 @@ function updateMember(req, res, avatar){
                 result.profile.avatar = avatar;
             }
         });
+
         User.update( {_id:req.body.memberId}, {$set:{companiesProfile : user.companiesProfile}},
             function(err, result){
                 if (err) throw err;
