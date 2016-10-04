@@ -1,6 +1,6 @@
 var express = require('express');
 var router = express.Router();
-var User = require('../session/userModel');
+var User = require('../users/userModel');
 var services = require('./index');
 
 exports.isAdmin = function(req, res, next) {

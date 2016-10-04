@@ -1,11 +1,10 @@
 'use strict';
 
 /**
- * @module MembersController
+ * @module UsersController
  */
 
-var Members = require('./membersModel');
-var User = require('../session/userModel.js');
+var User = require('./userModel.js');
 var services = require('../services/index');
 var express = require('express');
 var router = express.Router();
@@ -14,11 +13,11 @@ var multipart = require('connect-multiparty');
 var fs = require('fs-extra');
 var path = require('path');
 
-var saveNewMemeber = function (req, res, avatar, companyId){
-    var newUser = {profile :_.merge(req.body.member, {avatar: avatar}), companyId:companyId};
-    var userData = new User({email : req.body.member.email});
+var saveNewUser = function (req, res, avatar, companyId){
+    var newUser = {profile :_.merge(req.body.user, {avatar: avatar}), companyId:companyId};
+    var userData = new User({email : req.body.user.email});
     User.find({
-        email : req.body.member.email
+        email : req.body.user.email
     }, function(err, user) {
         if (err) throw err;
         if(_.size(user) > 0){
@@ -29,7 +28,7 @@ var saveNewMemeber = function (req, res, avatar, companyId){
         userData.save(function(err) {
             if (err) throw err;
             res.send({
-                message:'ok'
+                message:'User was created'
             });
         });
     });
@@ -48,13 +47,13 @@ var removeFile = function (path){
 };
 
 
-function updateMember(req, res, avatar){
-    User.findById( req.body.memberId , function(err) {
+function updateUser(req, res, avatar){
+    User.findById( req.body.userId , function(err) {
         if (err) throw err;
     }).then(function(user){
         _.each(user.companiesProfile, function(result){
             if(result.companyId === req.params.companyId && result.profile){
-                result.profile = req.body.member;
+                result.profile = req.body.user;
                 if(avatar){
                     removeFile(result.profile.avatar.imagePath);
                     //removeFile(result.profile.avatar.imageThumbPath);
@@ -63,7 +62,7 @@ function updateMember(req, res, avatar){
             }
         });
 
-        User.update( {_id:req.body.memberId}, {$set:{companiesProfile : user.companiesProfile}},
+        User.update( {_id:req.body.userId}, {$set:{companiesProfile : user.companiesProfile}},
             function(err, result){
                 if (err) throw err;
                 res.send({
@@ -75,32 +74,32 @@ function updateMember(req, res, avatar){
 }
 
 
-function addMember(req, res) {
+function addUser(req, res) {
     if(req.files.file){
         services.upload.uploadImg(req).then(function(avatar){
-            saveNewMemeber(req, res, avatar, req.params.companyId);
+            saveNewUser(req, res, avatar, req.params.companyId);
         });
     }else{
-        saveNewMemeber(req, res, null, req.params.companyId);
+        saveNewUser(req, res, null, req.params.companyId);
     }
 
 
 }
-router.post('/:companyId/create', services.token.checkToken, services.permissions.isAdmin, multipart(), addMember);
+router.post('/:companyId/create', services.token.checkToken, services.permissions.isAdmin, multipart(), addUser);
 
 
-function editMember(req, res) {
+function editUser(req, res) {
     if(_.size(req.files) > 0){
         services.upload.uploadImg(req).then(function(avatar){
-            updateMember(req, res, avatar);
+            updateUser(req, res, avatar);
         });
     }else{
-        updateMember(req, res, null);
+        updateUser(req, res, null);
     }
 }
-router.post('/:companyId/update', services.token.checkToken,services.permissions.isAdmin, multipart(), editMember);
+router.post('/:companyId/update', services.token.checkToken,services.permissions.isAdmin, multipart(), editUser);
 
-function fetchMembers(req, res) {
+function fetchUsers(req, res) {
     User.find({
         "companiesProfile.companyId": req.params.companyId
     }, function(err, user) {
@@ -119,23 +118,23 @@ function fetchMembers(req, res) {
         });
     });
 }
-router.get('/:companyId/fetchMembers', services.token.checkToken, fetchMembers);
+router.get('/:companyId/fetchUsers', services.token.checkToken, fetchUsers);
 
-function removeMember(req, res) {
+function removeUser(req, res) {
     User.remove({
-         _id: req.body.member.userId
+         _id: req.body.user.userId
     }, function(err) {
         if (err) throw err;
-        if(req.body.member.avatar){
-            removeFile(req.body.member.avatar.imagePath);
-            //removeFile(req.body.member.avatar.imageThumbPath);
+        if(req.body.user.avatar){
+            removeFile(req.body.user.avatar.imagePath);
+            //removeFile(req.body.user.avatar.imageThumbPath);
         }
         res.send({
-            message:'Member was removed'
+            message:'User was removed'
         });
     });
 }
-router.post('/:companyId/removeMember', services.token.checkToken, services.permissions.isAdmin, removeMember);
+router.post('/:companyId/removeUser', services.token.checkToken, services.permissions.isAdmin, removeUser);
 
 
 module.exports = router;

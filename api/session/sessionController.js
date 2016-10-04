@@ -4,7 +4,7 @@
  * @module SessionController
  */
 var Company = require('../company/companyModel.js');
-var User = require('./userModel');
+var User = require('./../users/userModel');
 var services = require('../services/index');
 var express = require('express');
 var router = express.Router();
