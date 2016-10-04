@@ -23,18 +23,18 @@ exports.uploadImg = function(req) {
                 //if (!fs.existsSync(avatarThumbPath)){
                 //    fs.mkdirSync(avatarThumbPath);
                 //}
-                im.resize({
-                    srcPath: avatarPath, dstPath: avatarThumbPath,
-                    width:100, height:100
-                }, function(err){
-                    if (err) throw err;
+                //im.resize({
+                //    srcPath: avatarPath, dstPath: avatarThumbPath,
+                //    width:100, height:100
+                //}, function(err){
+                //    if (err) throw err;
                     resolve({
                         imageUrl : urljoin(req.protocol + ':', req.headers.host, avatarUrl),
-                        imagePath: avatarPath,
-                        imageThumbUrl: urljoin(req.protocol + ':', req.headers.host, avatarThumbUrl),
-                        imageThumbPath: avatarThumbPath
+                        imagePath: avatarPath
+                        //imageThumbUrl: urljoin(req.protocol + ':', req.headers.host, avatarThumbUrl),
+                        //imageThumbPath: avatarThumbPath
                     })
-                });
+                //});
             }
         });
     })
