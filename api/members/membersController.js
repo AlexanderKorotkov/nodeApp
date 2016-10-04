@@ -22,13 +22,7 @@ var saveNewMemeber = function (req, res, avatar, companyId){
     }, function(err, user) {
         if (err) throw err;
         if(_.size(user) > 0){
-            if(avatar){
-                services.upload.uploadImg(req).then(function(avatar){
-                    updateMember(req, res, avatar);
-                });
-            }else{
-                updateMember(req, res, null);
-            }
+            services.errorService.handleError(res, "User exist", " Email already exist", 400);
             return false;
         }
         userData.companiesProfile.push(newUser);
