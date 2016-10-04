@@ -61,7 +61,11 @@ function updateMember(req, res, avatar){
         _.each(user.companiesProfile, function(result){
             if(result.companyId === req.params.companyId && result.profile){
                 result.profile = req.body.member;
-                result.profile.avatar = avatar;
+                if(avatar){
+                    removeFile(result.profile.avatar.imagePath);
+                    removeFile(result.profile.avatar.imageThumbPath);
+                    result.profile.avatar = avatar;
+                }
             }
         });
 
