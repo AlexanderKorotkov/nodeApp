@@ -57,7 +57,7 @@ function updateMember(req, res, avatar){
                 result.profile = req.body.member;
                 if(avatar){
                     removeFile(result.profile.avatar.imagePath);
-                    removeFile(result.profile.avatar.imageThumbPath);
+                    //removeFile(result.profile.avatar.imageThumbPath);
                     result.profile.avatar = avatar;
                 }
             }
@@ -128,7 +128,7 @@ function removeMember(req, res) {
         if (err) throw err;
         if(req.body.member.avatar){
             removeFile(req.body.member.avatar.imagePath);
-            removeFile(req.body.member.avatar.imageThumbPath);
+            //removeFile(req.body.member.avatar.imageThumbPath);
         }
         res.send({
             message:'Member was removed'
