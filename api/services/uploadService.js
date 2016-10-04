@@ -13,18 +13,18 @@ exports.uploadImg = function(req) {
     var shortName = shortid.generate() + path.extname(req.files.file[0].name);
     var avatarPath = path.join(services.constants.ABSOLUTE_UPLOADS_FOLDER_URL, req.params.companyId, shortName);
     var avatarUrl = path.join(req.params.companyId, shortName);
-    var avatarThumbPath = path.join(services.constants.ABSOLUTE_UPLOADS_FOLDER_URL, req.params.companyId,'thumb');
-    var avatarThumbUrl = path.join(req.params.companyId,'thumb', shortName);
+    var avatarThumbPath = path.join(services.constants.ABSOLUTE_UPLOADS_FOLDER_URL, req.params.companyId,'thumb-'+ shortName);
+    var avatarThumbUrl = path.join(req.params.companyId,'thumb-'+ shortName);
     return new Promise(function(resolve/*, reject*/) {
         fs.move(req.files.file[0].path, avatarPath , function (err) {
             if (err) {
                 resolve(err)
             } else {
-                if (!fs.existsSync(avatarThumbPath)){
-                    fs.mkdirSync(avatarThumbPath);
-                }
+                //if (!fs.existsSync(avatarThumbPath)){
+                //    fs.mkdirSync(avatarThumbPath);
+                //}
                 im.resize({
-                    srcPath: avatarPath, dstPath: path.join(avatarThumbPath, shortName),
+                    srcPath: avatarPath, dstPath: avatarThumbPath,
                     width:100, height:100
                 }, function(err){
                     if (err) throw err;
@@ -32,7 +32,7 @@ exports.uploadImg = function(req) {
                         imageUrl : urljoin(req.protocol + ':', req.headers.host, avatarUrl),
                         imagePath: avatarPath,
                         imageThumbUrl: urljoin(req.protocol + ':', req.headers.host, avatarThumbUrl),
-                        imageThumbPath: path.join(avatarThumbPath,shortName)
+                        imageThumbPath: avatarThumbPath
                     })
                 });
             }
