@@ -20,6 +20,9 @@ exports.uploadImg = function(req) {
             if (err) {
                 resolve(err)
             } else {
+                if (!fs.existsSync(avatarThumbPath)){
+                    fs.mkdirSync(avatarThumbPath);
+                }
                 thumb({
                     source: avatarPath,
                     destination: avatarThumbPath,
