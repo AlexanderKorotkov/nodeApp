@@ -40,3 +40,15 @@ exports.uploadImg = function(req) {
     })
 
 };
+
+exports.deleteFile = function (path){
+    fs.exists(path, function(exists) {
+        if(exists) {
+            fs.unlink(path, function(err){
+                if (err) throw err;
+            });
+        } else {
+            console.log('File not found, so not deleting.');
+        }
+    });
+};
