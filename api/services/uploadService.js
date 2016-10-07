@@ -9,32 +9,32 @@ var shortid = require('shortid');
 var urljoin = require('url-join');
 var im = require('imagemagick');
 
-exports.uploadImg = function(req) {
-    var shortName = shortid.generate() + path.extname(req.files.file[0].name);
-    var avatarPath = path.join(services.constants.ABSOLUTE_UPLOADS_FOLDER_URL, req.params.companyId, shortName);
-    var avatarUrl = path.join(req.params.companyId, shortName);
-    //var avatarThumbPath = path.join(services.constants.ABSOLUTE_UPLOADS_FOLDER_URL, req.params.companyId,'thumb');
-    //var avatarThumbUrl = path.join(req.params.companyId,'thumb', shortName);
+exports.uploadImg = function(file, companyId, protocol, host) {
+    var shortName = shortid.generate() + path.extname(file.name);
+    var avatarPath = path.join(services.constants.ABSOLUTE_UPLOADS_FOLDER_URL, companyId, shortName);
+    var avatarUrl = path.join(companyId, shortName);
+    var avatarThumbPath = path.join(services.constants.ABSOLUTE_UPLOADS_FOLDER_URL, companyId,'thumb');
+    var avatarThumbUrl = path.join(companyId,'thumb', shortName);
     return new Promise(function(resolve/*, reject*/) {
-        fs.move(req.files.file[0].path, avatarPath , function (err) {
+        fs.move(file.path, avatarPath , function (err) {
             if (err) {
                 resolve(err)
             } else {
-                //if (!fs.existsSync(avatarThumbPath)){
-                //    fs.mkdirSync(avatarThumbPath);
-                //}
-                //im.resize({
-                //    srcPath: avatarPath, dstPath: path.join(avatarThumbPath, shortName),
-                //    width:100, height:100
-                //}, function(err){
-                //    if (err) throw err;
+                if (!fs.existsSync(avatarThumbPath)){
+                    fs.mkdirSync(avatarThumbPath);
+                }
+                im.resize({
+                    srcPath: avatarPath, dstPath: path.join(avatarThumbPath, shortName),
+                    width:100, height:100
+                }, function(err){
+                    if (err) throw err;
                     resolve({
-                        imageUrl : urljoin(req.protocol + ':', req.headers.host, avatarUrl),
-                        imagePath: avatarPath
-                        //imageThumbUrl: urljoin(req.protocol + ':', req.headers.host, avatarThumbUrl),
-                        //imageThumbPath: path.join(avatarThumbPath,shortName)
+                        imageUrl : urljoin(protocol + ':', host, avatarUrl),
+                        imagePath: avatarPath,
+                        imageThumbUrl: urljoin(protocol + ':', host, avatarThumbUrl),
+                        imageThumbPath: path.join(avatarThumbPath,shortName)
                     })
-                //});
+                });
             }
         });
     })

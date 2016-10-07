@@ -13,19 +13,33 @@ var _ = require('lodash');
 var multipart = require('connect-multiparty');
 
 function addUser(req, res) {
-    if(req.files.file){
-        services.upload.uploadImg(req).then(function(avatar){
-            usersService.saveNewUser(req, res, avatar, req.params.companyId).then(function(result){
+    var userData = new User({email : req.body.user.email});
+    var user = req.body.user;
+    var email = req.body.user.email;
+    var companyId = req.params.companyId;
+    var files = req.files;
+
+    if(_.size(files) > 0){
+        var protocol = req.protocol;
+        var host = req.headers.host;
+        services.upload.uploadImg(files.file[0], companyId, protocol, host).then(function(avatar){
+            var company = {profile :_.merge(user, {avatar: avatar}), companyId:companyId};
+            usersService.saveNewUser(company, userData,email, companyId).then(function(result){
                 res.send({
                     data: result
                 })
+            },function(err){
+                services.errorService.handleError(res, err.reason, err.message, 400);
             });
         });
     }else{
-        usersService.saveNewUser(req, res, null, req.params.companyId).then(function(){
+        var company = {profile :_.merge(user, {avatar: null}), companyId:companyId};
+        usersService.saveNewUser(company, userData,email, companyId).then(function(){
             res.send({
                 message:'User was created'
-            });
+            })
+        },function(err){
+            services.errorService.handleError(res, err.reason, err.message, 400);
         });
     }
 }
@@ -33,16 +47,23 @@ router.post('/:companyId/create', services.token.checkToken, services.permission
 
 
 function editUser(req, res) {
-    if(_.size(req.files) > 0){
-        services.upload.uploadImg(req).then(function(avatar){
-            usersService.updateUser(req, res, avatar).then(function(result){
+    var user = req.body.user;
+    var companyId = req.params.companyId;
+    var userId = req.body.userId;
+    var files = req.files;
+
+    if(_.size(files) > 0){
+        var protocol = req.protocol;
+        var host = req.headers.host;
+        services.upload.uploadImg(files.file[0], companyId, protocol, host).then(function(avatar){
+            usersService.updateUser(user, userId, companyId, avatar).then(function(result){
                 res.send({
                     data:result
                 });
             });
         });
     }else{
-        usersService.updateUser(req, res, null).then(function(result){
+        usersService.updateUser(user, userId, companyId, null).then(function(result){
             res.send({
                 data:result
             });
@@ -52,7 +73,8 @@ function editUser(req, res) {
 router.post('/:companyId/update', services.token.checkToken,services.permissions.isAdmin, multipart(), editUser);
 
 function fetchUsers(req, res) {
-    usersService.fetchUsers(req, res).then(function(result){
+    var companyId = req.params.companyId;
+    usersService.fetchUsers(companyId).then(function(result){
         res.send({
             data:result
         });
@@ -61,7 +83,9 @@ function fetchUsers(req, res) {
 router.get('/:companyId/fetchUsers', services.token.checkToken, fetchUsers);
 
 function removeUser(req, res) {
-    usersService.removeUser(req, res).then(function(result){
+    var userId = req.body.user.userId;
+    var avatar = req.body.user.avatar;
+    usersService.removeUser(userId, avatar).then(function(){
         res.send({
             message:'User was removed'
         });

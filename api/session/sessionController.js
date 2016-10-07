@@ -5,7 +5,7 @@
  */
 var Company = require('../company/companyModel.js');
 var User = require('./../users/userModel');
-var usersService = require('./../users/usersService');
+var sessionService = require('./sessionService');
 var services = require('../services/index');
 var express = require('express');
 var router = express.Router();
@@ -19,16 +19,22 @@ function signIn(req, res) {
     services.errorService.handleError(res, "Empty blank", "Please fill all fields", 400);
     return false;
   }
-  req.body.companyName = req.body.companyName.toLowerCase();
 
-  companyService.findCompanyByName(req.body.companyName).then(function(isCompanyExist){
+  var companyName = req.body.companyName.toLowerCase();
+  var email = req.body.email;
+  var password = req.body.password;
+  var client_secret = req.body.client_secret;
+
+  companyService.findCompanyByName(companyName).then(function(isCompanyExist){
     if (!isCompanyExist) {
-      services.errorService.handleError(res, "Invalid company", "You don't have access to this company", 400);
+      services.errorService.handleError(res, 'Invalid company', 'You do not have access to this company', 400);
       return false
     }
     // find the user
-    usersService.signInUser(req, res, isCompanyExist._id).then(function(result){
+    sessionService.signInUser(password, email, client_secret, isCompanyExist._id).then(function(result){
       res.send(result);
+    },function(err){
+      services.errorService.handleError(res, err.reason, err.message, 400);
     });
   });
 }
@@ -38,20 +44,23 @@ router.post('/signIn', signIn);
 function signUp(req, res) {
 
   if(!req.body.email || !req.body.password || !req.body.companyName){
-    services.errorService.handleError(res, "Empty blank", "Please fill all fields", 400);
+    services.errorService.handleError(res, 'Empty blank', 'Please fill all fields', 400);
     return false;
   }
   if(!validator.isEmail(req.body.email)){
-    services.errorService.handleError(res, "Invalid email", "Email is invalid", 400);
+    services.errorService.handleError(res, 'Invalid email', 'Email is invalid', 400);
     return false;
   }
 
-  req.body.companyName = req.body.companyName.toLowerCase();
+  var companyName = req.body.companyName.toLowerCase();
+  var email = req.body.email;
   var userData = new User(req.body);
-  var companyData = new Company({companyName: req.body.companyName});
+  var companyData = new Company({companyName: companyName});
 
-  usersService.signUpUser(req, res, userData, companyData).then(function(result){
+  sessionService.signUpUser(email, userData, companyData).then(function(result){
     res.send(result);
+  },function(err){
+    services.errorService.handleError(res, err.reason, err.message, 400);
   });
 }
 router.post('/signUp', signUp);
