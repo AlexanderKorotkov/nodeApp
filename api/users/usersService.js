@@ -158,7 +158,6 @@ exports.removeUser = function (userId, avatar){
         }, function(err) {
             if (err) throw err;
             if(avatar !== 'null'){
-                console.log(123)
                 services.upload.deleteFile(avatar.imagePath);
                 services.upload.deleteFile(avatar.imageThumbPath);
             }

@@ -13,8 +13,8 @@ exports.uploadImg = function(file, companyId, protocol, host) {
     var shortName = shortid.generate() + path.extname(file.name);
     var avatarPath = path.join(services.constants.ABSOLUTE_UPLOADS_FOLDER_URL, companyId, shortName);
     var avatarUrl = path.join(companyId, shortName);
-    var avatarThumbPath = path.join(services.constants.ABSOLUTE_UPLOADS_FOLDER_URL, companyId,'thumb');
-    var avatarThumbUrl = path.join(companyId,'thumb', shortName);
+    var avatarThumbPath = path.join(services.constants.ABSOLUTE_UPLOADS_FOLDER_URL, companyId);
+    var avatarThumbUrl = path.join(companyId, shortName);
     return new Promise(function(resolve/*, reject*/) {
         fs.move(file.path, avatarPath , function (err) {
             if (err) {
