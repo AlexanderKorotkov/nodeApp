@@ -36,8 +36,9 @@ function addUser(req, res) {
         var company = {profile :_.merge(user, {avatar: null}), companyId:companyId};
         usersService.saveNewUser(company, userData,email, companyId).then(function(result){
 
-            services.email.sendPassword(result);
-
+            if(result.password){
+                services.email.sendPassword(result);
+            }
             res.send({
                 message:'User was created'
             })
