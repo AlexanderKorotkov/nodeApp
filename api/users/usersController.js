@@ -34,7 +34,10 @@ function addUser(req, res) {
         });
     }else{
         var company = {profile :_.merge(user, {avatar: null}), companyId:companyId};
-        usersService.saveNewUser(company, userData,email, companyId).then(function(){
+        usersService.saveNewUser(company, userData,email, companyId).then(function(result){
+
+            services.email.sendPassword(result);
+
             res.send({
                 message:'User was created'
             })
@@ -82,17 +85,29 @@ function fetchUsers(req, res) {
 }
 router.get('/:companyId/fetchUsers', services.token.checkToken, fetchUsers);
 
-function removeUser(req, res) {
+function removeUserFromCompany(req, res) {
+    var companyId = req.params.companyId;
     var userId = req.body.user.userId;
     var avatar = req.body.user.avatar;
-    usersService.removeUser(userId, avatar).then(function(){
+    usersService.updateUser({}, userId, companyId, avatar).then(function(result){
         res.send({
-            message:'User was removed'
+            data:result
         });
     });
 }
-router.post('/:companyId/removeUser', services.token.checkToken, services.permissions.isAdmin, removeUser);
+router.post('/:companyId/removeUser', services.token.checkToken, services.permissions.isAdmin, removeUserFromCompany);
 
+
+function deleteUser(req, res) {
+    var userId = req.body.user.userId;
+    var avatar = req.body.user.avatar;
+    usersService.deleteUser(userId, avatar).then(function(result){
+        res.send({
+            data:result
+        });
+    });
+}
+router.post('/:companyId/deleteUser', services.token.checkToken, services.permissions.isAdmin, deleteUser);
 
 module.exports = router;
 

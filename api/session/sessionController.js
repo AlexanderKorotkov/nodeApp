@@ -40,6 +40,29 @@ function signIn(req, res) {
 }
 router.post('/signIn', signIn);
 
+function updatePassword(req, res) {
+
+  var oldPassword = req.body.passwordData.oldPassword;
+  var newPassword = req.body.passwordData.newPassword;
+  var repeatPassword = req.body.passwordData.repeatPassword;
+  var userId = req.body.userId;
+
+  if(newPassword !== repeatPassword){
+    services.errorService.handleError(res, "Passwords do not match", "Passwords do not match", 400);
+    return false;
+  }
+
+  sessionService.updatePassword(oldPassword, newPassword, userId).then(function(){
+
+    res.send({
+      message: 'Password was changed'
+    });
+  },function(err){
+    services.errorService.handleError(res, err.reason, err.message, 400);
+  });
+}
+router.post('/updatePassword', services.token.checkToken, updatePassword);
+
 
 function signUp(req, res) {
 

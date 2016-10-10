@@ -62,3 +62,22 @@ exports.signUpUser = function (email, userData, companyData){
     });
 };
 
+exports.updatePassword = function (oldPassword, newPassword, userId){
+    return new Promise(function(resolve, reject) {
+        User.findById( userId , function(err) {
+            if (err) throw err;
+        }).then(function(user){
+            if(user.password !== oldPassword){
+                reject({reason: 'Old Password does not match', message:'Old password does not match'});
+                return false;
+            }
+            User.update({_id: user._id}, {$set: {password: newPassword}},
+                function (err, result) {
+                    if (err) throw err;
+                    resolve(result)
+                }
+            );
+        });
+    });
+};
+

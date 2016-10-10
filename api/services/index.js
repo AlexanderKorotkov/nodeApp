@@ -2,8 +2,9 @@
 
 exports.conf = require('../conf');
 exports.errorService = require('./responseErrorsService');
-exports.token = require('./tokenService.js');
-exports.constants = require('./constants.js');
-exports.upload = require('./uploadService.js');
-exports.utils = require('./utilsService.js');
-exports.permissions = require('./permissionsService.js');
+exports.token = require('./tokenService');
+exports.constants = require('./constants');
+exports.upload = require('./uploadService');
+exports.utils = require('./utilsService');
+exports.permissions = require('./permissionsService');
+exports.email = require('./emailService');
