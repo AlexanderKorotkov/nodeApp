@@ -32,7 +32,7 @@ exports.uploadImg = function(file, companyId, protocol, host) {
                 resolve({
                     imageUrl: urljoin(protocol + ':', host, avatarUrl),
                     imagePath: avatarPath,
-                    iimageThumbUrl: urljoin(protocol + ':', host, avatarThumbUrl),
+                    imageThumbUrl: urljoin(protocol + ':', host, avatarThumbUrl),
                     imageThumbPath: path.join(avatarThumbPath,shortName)
                 });
                 });
