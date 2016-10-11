@@ -53,7 +53,6 @@ function updatePassword(req, res) {
   }
 
   sessionService.updatePassword(oldPassword, newPassword, userId).then(function(){
-
     res.send({
       message: 'Password was changed'
     });

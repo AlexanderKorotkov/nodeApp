@@ -60,7 +60,7 @@ exports.updateUser = function (userInfo, userId, companyId, avatar){
                     if(avatar){
                         if(result.profile.avatar){
                             services.upload.deleteFile(result.profile.avatar.imagePath);
-                            //services.upload.deleteFile(result.profile.avatar.imageThumbPath);
+                            services.upload.deleteFile(result.profile.avatar.imageThumbPath);
                         }
                         userInfo.avatar = avatar;
                     }
@@ -107,7 +107,7 @@ exports.deleteUser = function (userId, avatar){
             if (err) throw err;
             if(avatar !== 'null'){
                 services.upload.deleteFile(avatar.imagePath);
-                //services.upload.deleteFile(avatar.imageThumbPath);
+                services.upload.deleteFile(avatar.imageThumbPath);
             }
             resolve();
         });
