@@ -58,10 +58,11 @@ exports.updateUser = function (userInfo, userId, companyId, avatar){
             _.each(user.companiesProfile, function(result){
                 if(result.companyId === companyId && result.profile){
                     if(avatar){
-                        if(result.profile.avatar){
+                        if(result.profile.avatar !== 'null'){
                             services.upload.deleteFile(result.profile.avatar.imagePath);
                             services.upload.deleteFile(result.profile.avatar.imageThumbPath);
                         }
+                        console.log(1)
                         userInfo.avatar = avatar;
                     }
                     if(_.size(userInfo) > 0){
