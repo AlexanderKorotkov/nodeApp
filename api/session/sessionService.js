@@ -4,7 +4,7 @@ var User = require('../users/userModel');
 var services = require('../services/index');
 var _ = require('lodash');
 
-exports.signInUser = function (password, email, client_secret, companyId){
+exports.signInUser = function (password, email, client_secret){
     return new Promise(function(resolve, reject) {
         User.findOne({
             email: email
@@ -29,12 +29,18 @@ exports.signInUser = function (password, email, client_secret, companyId){
                 reject({reason: 'Invalid secret key', message:'Invalid secret key'});
                 return;
             }
-            // return the information including token as JSON
-            resolve({
-                token: token,
-                user: { email: user.email, _id: user._id, admin: user.admin, companyId: companyId },
-                companyId: user.companyId
-            });
+
+            User.update({_id: user._id}, {$set: {currentCompany : user.currentCompany}},
+                function (err, result) {
+                    if (err) throw err;
+                    // return the information including token as JSON
+                    resolve({
+                        token: token,
+                        user: { email: user.email, _id: user._id, currentCompany: user.currentCompany }
+
+                    });
+                }
+            );
         });
     });
 };
@@ -51,8 +57,18 @@ exports.signUpUser = function (email, userData, companyData){
             }
             companyData.save(function(err, result) {
                 if (err) throw err;
-                userData.companiesProfile.push({companyId : result._id});
-                userData.admin = true;
+                userData.currentCompany = {
+                    isAdmin : true,
+                    companyId : result._id,
+                    companyName : result.companyName
+                };
+                userData.companiesProfile.push({
+                    isAdmin : true,
+                    companyInfo: {
+                        companyId: result._id,
+                        companyName: result.companyName
+                    }
+                });
                 userData.save(function(err) {
                     if (err) throw err;
                     resolve({message:'Company was created'})

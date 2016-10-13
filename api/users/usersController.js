@@ -16,15 +16,15 @@ function addUser(req, res) {
     var userData = new User({email : req.body.user.email});
     var user = req.body.user;
     var email = req.body.user.email;
-    var companyId = req.params.companyId;
+    var currentCompany = req.body.currentCompany;
     var files = req.files;
 
     if(_.size(files) > 0){
         var protocol = req.protocol;
         var host = req.headers.host;
-        services.upload.uploadImg(files.file[0], companyId, protocol, host).then(function(avatar){
-            var company = {profile :_.merge(user, {avatar: avatar}), companyId:companyId};
-            usersService.saveNewUser(company, userData,email, companyId).then(function(result){
+        services.upload.uploadImg(files.file[0], currentCompany.companyId, protocol, host).then(function(avatar){
+            var company = {profile :_.merge(user, {avatar: avatar}), companyInfo:currentCompany};
+            usersService.saveNewUser(company, userData,email, currentCompany.companyId).then(function(result){
                 res.send({
                     data: result
                 })
@@ -33,9 +33,8 @@ function addUser(req, res) {
             });
         });
     }else{
-        var company = {profile :_.merge(user, {avatar: null}), companyId:companyId};
-        usersService.saveNewUser(company, userData,email, companyId).then(function(result){
-
+        var company = {profile :_.merge(user, {avatar: null}), companyInfo:currentCompany};
+        usersService.saveNewUser(company, userData,email, currentCompany.companyId).then(function(result){
             if(result.password){
                 services.email.sendPassword(result);
             }
@@ -47,7 +46,7 @@ function addUser(req, res) {
         });
     }
 }
-router.post('/:companyId/create', services.token.checkToken, services.permissions.isAdmin, multipart(), addUser);
+router.post('/create', services.token.checkToken, services.permissions.isAdmin, multipart(), addUser);
 
 
 function editUser(req, res) {
@@ -109,6 +108,27 @@ function deleteUser(req, res) {
     });
 }
 router.post('/:companyId/deleteUser', services.token.checkToken, services.permissions.isAdmin, deleteUser);
+
+function getUserCompanyList(req, res) {
+    var userId = req.params.userId;
+    usersService.getUserCompanyList(userId).then(function(result){
+        res.send(
+            result.companiesProfile
+        );
+    });
+}
+router.get('/:userId/getUserCompanyList', services.token.checkToken, getUserCompanyList);
+
+function selectCompany(req, res) {
+    var userId = req.body.userId;
+    var companyInfo = req.body.companyInfo;
+    usersService.selectCompany(userId, companyInfo).then(function(result){
+        res.send(
+            result
+        );
+    });
+}
+router.post('/selectCompany', services.token.checkToken, selectCompany);
 
 module.exports = router;
 

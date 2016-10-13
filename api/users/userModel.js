@@ -8,13 +8,20 @@ var Schema = mongoose.Schema;
 module.exports = mongoose.model('User', new Schema({
     password: String,
     email: String,
+    currentCompany:{
+        isAdmin: Boolean,
+        companyId: String,
+        companyName: String
+    },
     companiesProfile: [
         {
-            companyId: String,
+            isAdmin: Boolean,
+            companyInfo:{
+                companyId: String,
+                companyName: String
+            },
             profile: Object
         }
-    ],
-    superAdmin: Boolean,
-    admin: Boolean
+    ]
 }));
 
