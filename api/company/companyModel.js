@@ -5,5 +5,12 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
 module.exports = mongoose.model('Company', new Schema({
-    companyName: String
+    companyId: String,
+    companyName: String,
+    companyLogo: String,
+    companyUsers: [{
+        role: String,
+        usedId: String
+    }],
+    companyWorkers : Array
 }));

@@ -6,22 +6,12 @@ var Schema = mongoose.Schema;
 
 // set up a mongoose model and pass it using module.exports
 module.exports = mongoose.model('User', new Schema({
+
+    userId: String,
+    role: String,
     password: String,
     email: String,
-    currentCompany:{
-        isAdmin: Boolean,
-        companyId: String,
-        companyName: String
-    },
-    companiesProfile: [
-        {
-            isAdmin: Boolean,
-            companyInfo:{
-                companyId: String,
-                companyName: String
-            },
-            profile: Object
-        }
-    ]
+    currentCompany: String
+
 }));
 

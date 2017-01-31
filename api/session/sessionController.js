@@ -3,7 +3,6 @@
 /**
  * @module SessionController
  */
-var Company = require('../company/companyModel.js');
 var User = require('./../users/userModel');
 var sessionService = require('./sessionService');
 var services = require('../services/index');
@@ -60,21 +59,25 @@ router.post('/updatePassword', services.token.checkToken, updatePassword);
 
 function signUp(req, res) {
 
-  if(!req.body.email || !req.body.password || !req.body.companyName){
+  if(!req.body.email || !req.body.password || !req.body.repeatPassword){
     services.errorService.handleError(res, 'Empty blank', 'Please fill all fields', 400);
     return false;
   }
+
+  if(req.body.password !== req.body.repeatPassword){
+    services.errorService.handleError(res, 'Passwords do not match', 'Passwords do not match', 400);
+    return false;
+  }
+
   if(!validator.isEmail(req.body.email)){
     services.errorService.handleError(res, 'Invalid email', 'Email is invalid', 400);
     return false;
   }
 
-  var companyName = req.body.companyName.toLowerCase();
   var email = req.body.email;
   var userData = new User(req.body);
-  var companyData = new Company({companyName: companyName});
 
-  sessionService.signUpUser(email, userData, companyData).then(function(result){
+  sessionService.signUpUser(email, userData).then(function(result){
     res.send(result);
   },function(err){
     services.errorService.handleError(res, err.reason, err.message, 400);

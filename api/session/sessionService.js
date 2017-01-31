@@ -45,34 +45,21 @@ exports.signInUser = function (password, email, client_secret){
     });
 };
 
-exports.signUpUser = function (email, userData, companyData){
+exports.signUpUser = function (email, userData){
     return new Promise(function(resolve, reject) {
         User.findOne({
             email: email
         }, function(err, user) {
             if (err) throw err;
+            console.log(user)
             if (user) {
-                reject({reason: 'User exist', message:'Username, Email or Company Name already exist'});
+                reject({reason: 'User exist', message:'Username, Email already exist'});
                 return;
             }
-            companyData.save(function(err, result) {
+
+            userData.save(function(err) {
                 if (err) throw err;
-                userData.currentCompany = {
-                    isAdmin : true,
-                    companyId : result._id,
-                    companyName : result.companyName
-                };
-                userData.companiesProfile.push({
-                    isAdmin : true,
-                    companyInfo: {
-                        companyId: result._id,
-                        companyName: result.companyName
-                    }
-                });
-                userData.save(function(err) {
-                    if (err) throw err;
-                    resolve({message:'Company was created'})
-                });
+                resolve({message:'User was created'})
             });
         });
     });
