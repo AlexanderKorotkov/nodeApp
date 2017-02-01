@@ -51,7 +51,6 @@ exports.signUpUser = function (email, userData){
             email: email
         }, function(err, user) {
             if (err) throw err;
-            console.log(user)
             if (user) {
                 reject({reason: 'User exist', message:'Username, Email already exist'});
                 return;
