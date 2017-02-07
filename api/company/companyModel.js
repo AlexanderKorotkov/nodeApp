@@ -11,5 +11,5 @@ module.exports = mongoose.model('Company', new Schema({
         role: String,
         userId: String
     }],
-    companyWorkers : []
+    companyWorkers : Array
 }));

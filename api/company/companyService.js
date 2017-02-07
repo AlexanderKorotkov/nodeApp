@@ -1,13 +1,14 @@
 'use strict';
 
-var Company = require('./companyModel');
-var _ = require('lodash');
+let Company = require('./companyModel');
+let User = require('../users/userModel');
+let _ = require('lodash');
 
-exports.getUserCompanyList = function (userId){
+exports.getUserCompanyList = userId =>{
     return new Promise(function(resolve, reject) {
         Company.find({
             "companyUsers.userId": userId
-        }, function(err, companies) {
+        }, (err, companies) => {
             if (err) throw err;
             let companiesList = [];
             _.each(companies, (data)=>{
@@ -18,12 +19,69 @@ exports.getUserCompanyList = function (userId){
     });
 };
 
-exports.create = function (companyName, userId){
-    var companyData = new Company({companyName:companyName});
+exports.selectCompany = (userId, companyInfo) =>{
+    return new Promise((resolve, reject) => {
+        Company.findOne({
+            "companyUsers.userId": userId
+        }, (err, company) => {
+            if (err) throw err;
+            let user = _.find(company.companyUsers,(result) =>{
+                if(result.userId === userId){
+                    return result.role
+                }
+            });
+
+            User.update({_id: userId}, {$set: {currentCompany: companyInfo, role: user.role}},
+                function (err, result) {
+                    if (err) throw err;
+                    resolve({data:{currentCompany: companyInfo, role: user.role}})
+                }
+            );
+        });
+    });
+};
+
+exports.addWorker = (worker, currentCompany) =>{
+    return new Promise((resolve, reject) => {
+        Company.findOne({
+            _id: currentCompany.companyId
+        },  (err, company) => {
+            if (err) throw err;
+
+            _.each(company.companyWorkers,(result) =>{
+                if(result.email === worker.email){
+                    reject({reason: 'Worker email exist', message:'Worker with this email already exist'});
+                }
+            });
+            reject();
+            Company.update({_id: currentCompany.companyId}, {$push: {companyWorkers: worker}},
+                function (err, result) {
+                    if (err) throw err;
+                    resolve(result)
+                }
+            );
+        });
+    });
+
+};
+
+exports.fetchCompanyWorkers = companyId =>{
     return new Promise(function(resolve, reject) {
         Company.findOne({
-            companyName: companyName
+            _id: companyId
         }, function(err, company) {
+            if (err) throw err;
+            resolve(company.companyWorkers);
+        });
+    });
+};
+
+exports.create = (companyName, userId) => {
+    var companyData = new Company({companyName:companyName});
+    return new Promise((resolve, reject) => {
+        Company.findOne({
+            companyName: companyName
+        }, (err, company) => {
             if ( err ){
                 reject(err);
                 return;
@@ -34,11 +92,11 @@ exports.create = function (companyName, userId){
             }
 
             companyData.companyUsers.push({
-                role : 'owner',
+                role : 'admin',
                 userId : userId
-            })
+            });
 
-            companyData.save(function(err) {
+            companyData.save((err) => {
                 if (err) throw err;
                 resolve({message:'Company was created'})
             });

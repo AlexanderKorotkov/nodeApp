@@ -3,20 +3,21 @@
 /**
  * @module SessionController
  */
-var Company = require('./companyModel');
-var services = require('../services/index');
-var express = require('express');
-var router = express.Router();
-var validator = require('validator');
-var _ = require('lodash');
-var companyService = require('./companyService');
+let Company = require('./companyModel');
+let services = require('../services/index');
+let express = require('express');
+let router = express.Router();
+let validator = require('validator');
+let _ = require('lodash');
+let companyService = require('./companyService');
+let multipart = require('connect-multiparty');
 
 
 function create(req, res) {
 
-  var companyName = req.body.companyData.companyName;
-  var companyNameRepeat = req.body.companyData.companyNameRepeat;
-  var userId = req.body.userId;
+  let companyName = req.body.companyData.companyName;
+  let companyNameRepeat = req.body.companyData.companyNameRepeat;
+  let userId = req.body.userId;
 
     if(!companyName){
         services.errorService.handleError(res, "Company name is empty", "Company name is empty", 400);
@@ -40,7 +41,7 @@ router.post('/create', services.token.checkToken, create);
 
 function getUserCompanyList(req, res) {
 
-    var userId = req.params.userId;
+    let userId = req.params.userId;
     companyService.getUserCompanyList(userId).then(function(result){
         res.send(
             result
@@ -48,6 +49,40 @@ function getUserCompanyList(req, res) {
     });
 }
 router.get('/:userId/getUserCompanyList', services.token.checkToken, getUserCompanyList);
+
+function selectCompany(req, res) {
+    let userId = req.body.userId;
+    let companyInfo = req.body.companyInfo;
+    companyService.selectCompany(userId, companyInfo).then(function(result){
+        res.send(
+            result
+        );
+    });
+}
+router.post('/selectCompany', services.token.checkToken, selectCompany);
+
+function fetchCompanyWorkers(req, res) {
+
+    let companyId = req.params.companyId;
+    companyService.fetchCompanyWorkers(companyId).then(function(result){
+        res.send({
+            data:result
+        });
+    });
+}
+router.get('/:companyId/fetchWorkers', services.token.checkToken, fetchCompanyWorkers);
+
+function addWorker(req, res) {
+
+    let worker = req.body.worker;
+    let company = req.body.company;
+    companyService.addWorker(worker, company).then(function(result){
+        res.send({
+            data:result
+        });
+    });
+}
+router.post('/addWorker', services.token.checkToken, services.permissions.isAdmin, multipart(), addWorker);
 
 
 module.exports = router;
