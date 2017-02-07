@@ -53,7 +53,7 @@ exports.addWorker = (worker, currentCompany) =>{
                     reject({reason: 'Worker email exist', message:'Worker with this email already exist'});
                 }
             });
-            reject();
+
             Company.update({_id: currentCompany.companyId}, {$push: {companyWorkers: worker}},
                 function (err, result) {
                     if (err) throw err;
