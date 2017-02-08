@@ -36,7 +36,7 @@ exports.signInUser = function (password, email, client_secret){
                     // return the information including token as JSON
                     resolve({
                         token: token,
-                        user: { email: user.email, _id: user._id, currentCompany: user.currentCompany }
+                        user: { email: user.email, _id: user._id, currentCompany: user.currentCompany, role: user.role }
 
                     });
                 }

@@ -3,6 +3,49 @@
 let Company = require('./companyModel');
 let User = require('../users/userModel');
 let _ = require('lodash');
+let shortid = require('shortid');
+
+
+exports.createCompany = (companyName, userId) => {
+    var companyData = new Company({companyName:companyName});
+    return new Promise((resolve, reject) => {
+        Company.findOne({
+            companyName: companyName
+        }, (err, company) => {
+            if ( err ){
+                reject(err);
+                return;
+            }
+            if(_.size(company) > 0){
+                reject({reason: 'Company already exist', message:'Company already exist'});
+                return false;
+            }
+
+            companyData.companyUsers.push({
+                role : 'admin',
+                userId : userId
+            });
+
+            companyData.save((err) => {
+                if (err) throw err;
+                resolve({message:'Company was created'})
+            });
+            resolve(company);
+        });
+    });
+};
+
+exports.fetchCompanyWorkers = (companyId, userId) =>{
+    return new Promise(function(resolve, reject) {
+        Company.findOne({
+            _id: companyId, "companyUsers.userId": userId
+        }, function(err, company) {
+            if (err) throw err;
+            if (!company) return  reject({reason: 'Companies do not exist', message:'Oops nothing to show'});
+            resolve(company.companyWorkers);
+        });
+    });
+};
 
 exports.getUserCompanyList = userId =>{
     return new Promise(function(resolve, reject) {
@@ -48,11 +91,17 @@ exports.addWorker = (worker, currentCompany) =>{
         },  (err, company) => {
             if (err) throw err;
 
-            _.each(company.companyWorkers,(result) =>{
+           let isWorkerExist =  _.find(company.companyWorkers,(result) =>{
                 if(result.email === worker.email){
-                    reject({reason: 'Worker email exist', message:'Worker with this email already exist'});
+                    return result;
                 }
             });
+
+           if(isWorkerExist){
+              return reject({reason: 'Worker email exist', message:'Worker with this email already exist'});
+           }
+
+           worker._id = shortid.generate();
 
             Company.update({_id: currentCompany.companyId}, {$push: {companyWorkers: worker}},
                 function (err, result) {
@@ -65,44 +114,48 @@ exports.addWorker = (worker, currentCompany) =>{
 
 };
 
-exports.fetchCompanyWorkers = companyId =>{
+exports.deleteWorker = function (companyId, worker){
     return new Promise(function(resolve, reject) {
         Company.findOne({
             _id: companyId
         }, function(err, company) {
             if (err) throw err;
-            resolve(company.companyWorkers);
+            _.each(company.companyWorkers, (result) =>{
+                if(result && result._id === worker._id){
+                    company.companyWorkers.splice(company.companyWorkers.indexOf(result), 1);
+                }
+            });
+            Company.update({_id: companyId}, {$set: {companyWorkers: company.companyWorkers}},
+                function (err, result) {
+                    if (err) throw err;
+                    resolve(result)
+                }
+            );
         });
     });
 };
 
-exports.create = (companyName, userId) => {
-    var companyData = new Company({companyName:companyName});
-    return new Promise((resolve, reject) => {
+exports.updateWorker = function (companyId, worker){
+    return new Promise(function(resolve, reject) {
         Company.findOne({
-            companyName: companyName
-        }, (err, company) => {
-            if ( err ){
-                reject(err);
-                return;
-            }
-            if(_.size(company) > 0){
-                reject({reason: 'Company already exist', message:'Company already exist'});
-                return false;
-            }
-
-            companyData.companyUsers.push({
-                role : 'admin',
-                userId : userId
+            _id: companyId
+        }, function(err, company) {
+            if (err) throw err;
+            _.each(company.companyWorkers, (result) =>{
+                if(result && result._id === worker._id){
+                    company.companyWorkers.splice(company.companyWorkers.indexOf(result), 1);
+                    company.companyWorkers.push(worker);
+                }
             });
-
-            companyData.save((err) => {
-                if (err) throw err;
-                resolve({message:'Company was created'})
-            });
-            resolve(company);
+            Company.update({_id: companyId}, {$set: {companyWorkers: company.companyWorkers}},
+                function (err, result) {
+                    if (err) throw err;
+                    resolve(result)
+                }
+            );
         });
     });
 };
+
 
 
