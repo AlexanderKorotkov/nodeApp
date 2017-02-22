@@ -84,12 +84,16 @@ exports.selectCompany = (userId, companyInfo) =>{
     });
 };
 
-exports.addWorker = (worker, currentCompany) =>{
+exports.addWorker = (worker, currentCompany, avatar) =>{
     return new Promise((resolve, reject) => {
         Company.findOne({
             _id: currentCompany.companyId
         },  (err, company) => {
             if (err) throw err;
+
+            if(worker.email === ''){
+                return reject({reason: 'Worker email is empty', message:'Email field cannot be blank'});
+            }
 
            let isWorkerExist =  _.find(company.companyWorkers,(result) =>{
                 if(result.email === worker.email){
@@ -99,6 +103,10 @@ exports.addWorker = (worker, currentCompany) =>{
 
            if(isWorkerExist){
               return reject({reason: 'Worker email exist', message:'Worker with this email already exist'});
+           }
+
+           if(avatar){
+               worker.avatar = avatar;
            }
 
            worker._id = shortid.generate();

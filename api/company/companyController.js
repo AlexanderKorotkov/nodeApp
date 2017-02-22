@@ -79,19 +79,36 @@ function addWorker(req, res) {
 
     let worker = req.body.worker;
     let company = req.body.company;
-    companyService.addWorker(worker, company).then(function(result){
-        res.send({
-            data:result
+    let file = req.files;
+
+    if(_.size(files) > 0){
+        let protocol = req.protocol;
+        let host = req.headers.host;
+        worker = JSON.parse(worker);
+        company = JSON.parse(company);
+        services.upload.uploadImg(file.file, company.companyId, protocol, host).then(function(avatar){
+            addWorkerHandler(avatar);
         });
-    }).catch((err) => {
-        return services.errorService.handleError(res, err.reason, err.message, 400);
-    });
+    }else{
+        addWorkerHandler();
+    }
+    function addWorkerHandler(avatar) {
+        companyService.addWorker(worker, company, avatar).then(function(result){
+            res.send({
+                data:result
+            });
+        }).catch((err) => {
+            return services.errorService.handleError(res, err.reason, err.message, 400);
+        });
+    }
+
 }
 router.post('/addWorker', services.token.checkToken, services.permissions.isAdmin, multipart(), addWorker);
 
 function deleteWorker(req, res) {
     let companyId = req.params.companyId;
     let worker = req.body.worker;
+
     companyService.deleteWorker( companyId, worker).then(function(result){
         res.send({
             data:result

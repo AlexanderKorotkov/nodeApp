@@ -8,6 +8,9 @@ exports.isAdmin = function(req, res, next) {
         _id :req.decoded._id
     }, function(err, user) {
         if (err) throw err;
+        if(user === undefined){
+            services.errorService.handleError(res, 'swv','Something went wrong', 400);
+        }
         if(!user.role){
             services.errorService.handleError(res, 'Wrong admin','You are not an admin!!!', 401);
         }else{
@@ -15,5 +18,6 @@ exports.isAdmin = function(req, res, next) {
         }
     });
 };
+
 
 
