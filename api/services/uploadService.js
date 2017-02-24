@@ -1,7 +1,5 @@
 var express = require('express');
-var app = express();
 var services = require('./index');
-var jwt    = require('jsonwebtoken'); // used to create, sign, and verify tokens
 
 var path = require('path');
 var fs = require('fs-extra');
@@ -47,7 +45,6 @@ exports.deleteFile = function (path){
         if(exists) {
             fs.unlink(path, function(err){
                 if (err) throw err;
-                console.log(1)
             });
         } else {
             console.log('File not found, so not deleting.');

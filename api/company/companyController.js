@@ -29,11 +29,11 @@ function createCompany(req, res) {
         return false;
     }
 
-    companyService.createCompany(companyName, userId).then(function(){
+    companyService.createCompany(companyName, userId).then(() => {
         res.send({
           message: 'Company was created'
         });
-    },function(err){
+    },(err) => {
         services.errorService.handleError(res, err.reason, err.message, 400);
     });
 }
@@ -43,7 +43,7 @@ function fetchCompanyWorkers(req, res) {
 
     let companyId = req.params.companyId;
     let userId = req.params.userId;
-    companyService.fetchCompanyWorkers(companyId, userId).then(function(result){
+    companyService.fetchCompanyWorkers(companyId, userId).then((result) => {
         res.send({
             data:result
         });
@@ -56,7 +56,7 @@ router.get('/:companyId/:userId/fetchWorkers', services.token.checkToken, fetchC
 function getUserCompanyList(req, res) {
 
     let userId = req.params.userId;
-    companyService.getUserCompanyList(userId).then(function(result){
+    companyService.getUserCompanyList(userId).then((result) => {
         res.send(
             result
         );
@@ -67,7 +67,7 @@ router.get('/:userId/getUserCompanyList', services.token.checkToken, getUserComp
 function selectCompany(req, res) {
     let userId = req.body.userId;
     let companyInfo = req.body.companyInfo;
-    companyService.selectCompany(userId, companyInfo).then(function(result){
+    companyService.selectCompany(userId, companyInfo).then((result) => {
         res.send(
             result
         );
@@ -81,19 +81,19 @@ function addWorker(req, res) {
     let company = req.body.company;
     let file = req.files;
 
-    if(_.size(files) > 0){
+    if(_.size(file) > 0){
         let protocol = req.protocol;
         let host = req.headers.host;
         worker = JSON.parse(worker);
         company = JSON.parse(company);
-        services.upload.uploadImg(file.file, company.companyId, protocol, host).then(function(avatar){
+        services.upload.uploadImg(file.file, company.companyId, protocol, host).then((avatar) => {
             addWorkerHandler(avatar);
         });
     }else{
         addWorkerHandler();
     }
     function addWorkerHandler(avatar) {
-        companyService.addWorker(worker, company, avatar).then(function(result){
+        companyService.addWorker(worker, company, avatar).then((result) => {
             res.send({
                 data:result
             });
@@ -105,11 +105,41 @@ function addWorker(req, res) {
 }
 router.post('/addWorker', services.token.checkToken, services.permissions.isAdmin, multipart(), addWorker);
 
+
+function updateWorker(req, res) {
+    let companyId = req.params.companyId;
+    let worker = req.body.worker;
+    let file = req.files;
+
+    if(_.size(file) > 0){
+        let protocol = req.protocol;
+        let host = req.headers.host;
+        worker = JSON.parse(worker);
+        services.upload.uploadImg(file.file, companyId, protocol, host).then((avatar) => {
+            updateWorkerHandler(avatar);
+        });
+    }else{
+        updateWorkerHandler();
+    }
+
+    function updateWorkerHandler(avatar) {
+        companyService.updateWorker(companyId, worker, avatar).then((result) => {
+            res.send({
+                data:result
+            });
+        }).catch((error) => {
+            console.log(error)
+        });
+    }
+
+}
+router.post('/:companyId/workerEdit', services.token.checkToken, services.permissions.isAdmin, multipart(), updateWorker);
+
 function deleteWorker(req, res) {
     let companyId = req.params.companyId;
     let worker = req.body.worker;
 
-    companyService.deleteWorker( companyId, worker).then(function(result){
+    companyService.deleteWorker( companyId, worker).then((result) => {
         res.send({
             data:result
         });
@@ -119,18 +149,6 @@ function deleteWorker(req, res) {
 }
 router.post('/:companyId/deleteWorker', services.token.checkToken, services.permissions.isAdmin, deleteWorker);
 
-function updateWorker(req, res) {
-    let companyId = req.params.companyId;
-    let worker = req.body.worker;
-    companyService.updateWorker(companyId, worker).then(function(result){
-        res.send({
-            data:result
-        });
-    }).catch((error) => {
-        console.log(error)
-    });
-}
-router.post('/:companyId/updateWorker', services.token.checkToken, services.permissions.isAdmin, updateWorker);
 
 module.exports = router;
 

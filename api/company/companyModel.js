@@ -1,8 +1,8 @@
 'use strict';
 
 // get an instance of mongoose and mongoose.Schema
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
+let mongoose = require('mongoose');
+let Schema = mongoose.Schema;
 
 module.exports = mongoose.model('Company', new Schema({
     companyName: String,
