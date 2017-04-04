@@ -131,7 +131,7 @@ exports.updateWorker = function (companyId, worker, avatar){
                 if(result && result._id === worker._id){
                     company.companyWorkers.splice(company.companyWorkers.indexOf(result), 1);
                     if(avatar){
-                        if(result.avatar){
+                        if(!_.isEmpty(result.avatar)){
                             services.upload.deleteFile(result.avatar.imagePath);
                             services.upload.deleteFile(result.avatar.imageThumbPath);
                         }
