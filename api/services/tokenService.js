@@ -10,7 +10,7 @@ exports.signToken = function(user, secret) {
         return false;
     }else{
         return  jwt.sign(user, app.get('superSecret'), {
-            expiresIn: '1m' // expires in 24 hours
+            expiresIn: '24h' // expires in 24 hours
         });
     }
 };
