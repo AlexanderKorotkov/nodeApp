@@ -1,4 +1,4 @@
 module.exports = {
     'secret': 'ionicSimpleAppKey',
-    'database': 'mongodb://app:testapp@ds123933.mlab.com:23933/co-workers'
+    'database': 'mongodb://app:testapp@ds035965.mlab.com:35965/company-manager'
 };
