@@ -143,8 +143,7 @@ exports.updateWorker = function (companyId, worker, avatar){
             Company.update({_id: companyId}, {$set: {companyWorkers: company.companyWorkers}},
                 (err, result) => {
                     if (err) throw err;
-                    let test = JSON.parse(avatar)
-                    resolve(test)
+                    resolve(avatar)
                 }
             );
         });
