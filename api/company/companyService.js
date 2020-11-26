@@ -47,6 +47,20 @@ exports.fetchCompanyWorkers = (companyId, userId) =>{
     });
 };
 
+exports.fetchCompanyWorker = (companyId, workerId) =>{
+  return new Promise((resolve, reject) => {
+    Company.findOne({
+      _id: companyId
+    }, function(err, company) {
+      if (err) throw err;
+      if (!company) return  reject({reason: 'Companies do not exist', message:'Oops nothing to show'});
+      const worker = company.companyWorkers.find(worker => worker._id === workerId);
+      resolve(worker);
+    });
+  });
+};
+
+
 exports.getUserCompanyList = userId =>{
     return new Promise((resolve) => {
         Company.find({

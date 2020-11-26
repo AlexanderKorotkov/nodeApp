@@ -53,6 +53,19 @@ function fetchCompanyWorkers(req, res) {
 }
 router.get('/:companyId/:userId/fetchWorkers', services.token.checkToken, fetchCompanyWorkers);
 
+function fetchCompanyWorker(req, res) {
+  let companyId = req.params.companyId;
+  let workerId = req.params.workerId;
+  companyService.fetchCompanyWorker(companyId, workerId).then((result) => {
+    res.send({
+      data:result
+    });
+  }).catch((err) => {
+    return services.errorService.handleError(res, err.reason, err.message, 400);
+  });
+}
+router.get('/:companyId/:workerId/fetchWorker', services.token.checkToken, fetchCompanyWorker);
+
 function getUserCompanyList(req, res) {
 
     let userId = req.params.userId;
