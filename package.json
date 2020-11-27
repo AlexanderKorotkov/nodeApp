@@ -29,7 +29,6 @@
     "promise.prototype.finally": "^1.0.1",
     "replace": "~0.3.0",
     "serve-favicon": "~2.3.0",
-    "sesame": "^0.1.2",
     "shortid": "^2.2.6",
     "url-join": "^1.1.0",
     "validator": "^5.5.0",
